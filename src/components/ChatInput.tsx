@@ -3,19 +3,24 @@ import {
   TextInput,
   KeyboardAvoidingView,
   Platform,
-  ImageBackground
+  ImageBackground,
+  Alert,
+  Pressable
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import { useChatStore } from '@/store/chatStore'
+import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio'
+import * as FileSystem from 'expo-file-system'
 
 interface ChatInputProps {
   onSend: (
     message: string,
     imageBase64: string | null,
-    isImageGeneration: boolean
+    isImageGeneration: boolean,
+    recordedAudioPath: string | null
   ) => Promise<void>
 }
 
@@ -24,15 +29,29 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   const [message, setMessage] = useState('')
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [isImageGeneration, setIsImageGeneration] = useState(false)
+  const [isRecording, setIsRecording] = useState(false)
+  const [recordedAudioPath, setRecordedAudioPath] = useState<string | null>(
+    null
+  )
+  const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
   )
 
+  const handleConvertAudio = async () => {
+    if (!recordedAudioPath) return null
+    return FileSystem.readAsStringAsync(recordedAudioPath, {
+      encoding: FileSystem.EncodingType.Base64
+    })
+  }
+
   const handleSend = async () => {
     setMessage('')
     setImageBase64(null)
+    setRecordedAudioPath(null)
     try {
-      await onSend(message, imageBase64, isImageGeneration)
+      const audioBase64 = await handleConvertAudio()
+      await onSend(message, imageBase64, isImageGeneration, audioBase64)
     } catch (error) {
       console.log(error)
     }
@@ -46,6 +65,36 @@ export default function ChatInput({ onSend }: ChatInputProps) {
     })
     if (!result.canceled && result.assets[0].base64) {
       setImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`)
+    }
+  }
+
+  const startRecording = async () => {
+    try {
+      const { granted } = await AudioModule.requestRecordingPermissionsAsync()
+      if (!granted) {
+        Alert.alert(
+          'Permission not granted',
+          'Please grant permission to record audio'
+        )
+        return
+      }
+      await audioRecorder.prepareToRecordAsync()
+      audioRecorder.record()
+      setIsRecording(true)
+    } catch (error) {
+      Alert.alert('Recording error', 'Please try again')
+    }
+  }
+
+  const stopRecording = async () => {
+    try {
+      await audioRecorder.stop()
+      if (audioRecorder.uri) {
+        setRecordedAudioPath(audioRecorder.uri)
+      }
+      setIsRecording(false)
+    } catch (error) {
+      Alert.alert('Error stopping the recording')
     }
   }
 
@@ -91,7 +140,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
             size={24}
             onPress={() => setIsImageGeneration(!isImageGeneration)}
           />
-          {!!message || !!imageBase64 ? (
+          {!!message || imageBase64 || recordedAudioPath ? (
             <View className='bg-white rounded-full p-2'>
               <MaterialCommunityIcons
                 name='arrow-up'
@@ -103,13 +152,17 @@ export default function ChatInput({ onSend }: ChatInputProps) {
               />
             </View>
           ) : (
-            <View className='bg-white rounded-full p-2 ml-auto'>
+            <Pressable
+              onPress={isRecording ? stopRecording : startRecording}
+              className={`${
+                isRecording ? 'bg-white' : 'bg-black'
+              }  rounded-full p-2 ml-auto`}>
               <MaterialCommunityIcons
                 name='microphone'
                 size={24}
-                color='black'
+                color={isRecording ? 'black' : 'white'}
               />
-            </View>
+            </Pressable>
           )}
         </View>
       </View>
