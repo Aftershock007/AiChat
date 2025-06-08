@@ -1,0 +1,262 @@
+[
+  {
+    "id": "1",
+    "title": "Creating Resume",
+    "messages": [
+      {
+        "id": "1-1",
+        "role": "user",
+        "message": "Can you help me structure a resume for a software engineering role?"
+      },
+      {
+        "id": "1-2",
+        "role": "assistant",
+        "message": "Start with a header including your name and contact info, followed by a summary, skills, experience in reverse chronological order, and education."
+      },
+      {
+        "id": "1-3",
+        "role": "user",
+        "message": "What skills should I highlight for a junior position?"
+      },
+      {
+        "id": "1-4",
+        "role": "assistant",
+        "message": "Emphasize proficiency in languages like Python or Java, problem-solving, and teamwork. Include any relevant projects or internships."
+      }
+    ]
+  },
+  {
+    "id": "2",
+    "title": "Workout Plan",
+    "messages": [
+      {
+        "id": "2-1",
+        "role": "user",
+        "message": "I want a beginner workout plan for strength training."
+      },
+      {
+        "id": "2-2",
+        "role": "assistant",
+        "message": "Try a 3-day split: Day 1: Squats, push-ups, rows; Day 2: Rest; Day 3: Deadlifts, bench press, planks. 3 sets of 10-12 reps each."
+      },
+      {
+        "id": "2-3",
+        "role": "user",
+        "message": "How long should I rest between sets?"
+      },
+      {
+        "id": "2-4",
+        "role": "assistant",
+        "message": "Rest 60-90 seconds for smaller muscle groups, 2-3 minutes for larger ones like legs."
+      }
+    ]
+  },
+  {
+    "id": "3",
+    "title": "Meal Plan",
+    "messages": [
+      {
+        "id": "3-1",
+        "role": "user",
+        "message": "Can you suggest a meal plan for weight loss?"
+      },
+      {
+        "id": "3-2",
+        "role": "assistant",
+        "message": "Focus on high-protein, low-carbohydrate meals: Breakfast: Greek yogurt with berries; Lunch: Grilled chicken salad; Dinner: Salmon with steamed veggies."
+      },
+      { "id": "3-3", "role": "user", "message": "Any snack ideas?" },
+      {
+        "id": "3-4",
+        "role": "assistant",
+        "message": "Try almonds, celery with hummus, or a hard-boiled egg for low-calorie, filling snacks."
+      }
+    ]
+  },
+  {
+    "id": "4",
+    "title": "Movie Script",
+    "messages": [
+      {
+        "id": "4-1",
+        "role": "user",
+        "message": "I need help with a sci-fi movie script idea."
+      },
+      {
+        "id": "4-2",
+        "role": "assistant",
+        "message": "Consider a story about a rogue AI terraformer that starts reshaping Earth to mimic an alien planet."
+      },
+      {
+        "id": "4-3",
+        "role": "user",
+        "message": "What’s a good opening scene?"
+      },
+      {
+        "id": "4-4",
+        "role": "assistant",
+        "message": "Open with a lone astronaut discovering strange, glowing patterns spreading across a desert from a crashed probe."
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "title": "UI Feedback and Suggestions",
+    "messages": [
+      {
+        "id": "5-1",
+        "role": "user",
+        "message": "My app’s UI feels cluttered. Any tips?"
+      },
+      {
+        "id": "5-2",
+        "role": "assistant",
+        "message": "Simplify your layout with more white space, consistent fonts, and a clear visual hierarchy. Prioritize key actions."
+      },
+      { "id": "5-3", "role": "user", "message": "Should I use more colors?" },
+      {
+        "id": "5-4",
+        "role": "assistant",
+        "message": "Stick to a limited palette (2-3 colors) for cohesion. Use accents for buttons or highlights."
+      }
+    ]
+  },
+  {
+    "id": "6",
+    "title": "Calorie Calculations",
+    "messages": [
+      {
+        "id": "6-1",
+        "role": "user",
+        "message": "How many calories do I need daily to maintain my weight?"
+      },
+      {
+        "id": "6-2",
+        "role": "assistant",
+        "message": "Estimate your BMR using the Mifflin-St Jeor formula, then multiply by your activity level (1.2 for sedentary, up to 1.9 for very active)."
+      },
+      {
+        "id": "6-3",
+        "role": "user",
+        "message": "I’m 30, male, 180 lbs, 5’10”, moderately active."
+      },
+      {
+        "id": "6-4",
+        "role": "assistant",
+        "message": "Your BMR is ~1,800 calories. At moderate activity (1.55 multiplier), you need ~2,800 calories daily to maintain weight."
+      }
+    ]
+  },
+  {
+    "id": "7",
+    "title": "Formatting Tips",
+    "messages": [
+      {
+        "id": "7-1",
+        "role": "user",
+        "message": "How should I format a professional email?"
+      },
+      {
+        "id": "7-2",
+        "role": "assistant",
+        "message": "Use a clear subject line, formal greeting (e.g., Dear [Name]), concise body with paragraphs, and a polite closing (e.g., Best regards)."
+      },
+      { "id": "7-3", "role": "user", "message": "Any tips for bullet points?" },
+      {
+        "id": "7-4",
+        "role": "assistant",
+        "message": "Keep bullets short, start with action verbs, and ensure parallel structure for clarity."
+      }
+    ]
+  },
+  {
+    "id": "8",
+    "title": "Expo SDK News",
+    "messages": [
+      {
+        "id": "8-1",
+        "role": "user",
+        "message": "What new was introduced in the Expo SDK 51?"
+      },
+      {
+        "id": "8-2",
+        "role": "assistant",
+        "message": "Expo SDK 51 includes React Native 0.74, improved TypeScript support, and new APIs for camera and location."
+      },
+      {
+        "id": "8-3",
+        "role": "user",
+        "message": "Is it stable for production?"
+      },
+      {
+        "id": "8-4",
+        "role": "assistant",
+        "message": "Yes, SDK 51 is production-ready, but test thoroughly for your specific use case, especially with new APIs."
+      }
+    ]
+  },
+  {
+    "id": "9",
+    "title": "Summer Activity Suggestions",
+    "messages": [
+      {
+        "id": "9-1",
+        "role": "user",
+        "message": "What are fun summer activities for a family?"
+      },
+      {
+        "id": "9-2",
+        "role": "assistant",
+        "message": "Try hiking, beach picnics, outdoor movie nights, or visiting a local water park."
+      },
+      {
+        "id": "9-3",
+        "role": "user",
+        "message": "Any indoor options for hot days?"
+      },
+      {
+        "id": "9-4",
+        "role": "assistant",
+        "message": "Visit a museum, try an escape room, or host a board game marathon with AC."
+      }
+    ]
+  },
+  {
+    "id": "10",
+    "title": "Popular Destinations",
+    "messages": [
+      {
+        "id": "10-1",
+        "role": "user",
+        "message": "What are trending travel destinations for 2025?"
+      },
+      {
+        "id": "10-2",
+        "role": "assistant",
+        "message": "Lisbon, Portugal; Seoul, South Korea; and Banff, Canada, are gaining popularity for culture, food, and nature."
+      },
+      {
+        "id": "10-3",
+        "role": "user",
+        "message": "Any budget-friendly options?"
+      },
+      {
+        "id": "10-4",
+        "role": "assistant",
+        "message": "Consider Budapest, Hungary, or Chiang Mai, Thailand, for affordable yet vibrant experiences."
+      }
+    ]
+  },
+  {
+    "id": "11",
+    "title": "Markdown",
+    "messages": [
+      {
+        "id": "10-1",
+        "role": "assistant",
+
+        "message": "This is **bold** text. This is *italic* text. This is a [link](https://www.google.com). This is a code block:\n\n```javascript\nconsole.log('Hello, world!');\n```"
+      }
+    ]
+  }
+]
