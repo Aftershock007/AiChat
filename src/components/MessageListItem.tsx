@@ -1,4 +1,6 @@
 import { Text, View } from 'react-native'
+import Markdown from 'react-native-markdown-display'
+import { markdownStyles } from '@/utils/markdown'
 
 export default function MessageListItem({ messageItem }: any) {
   const { message, role } = messageItem
@@ -10,10 +12,10 @@ export default function MessageListItem({ messageItem }: any) {
         isUser ? 'justify-end' : 'justify-start'
       }`}>
       <View
-        className={`rounded-2xl px-4 py-3.5 ${
+        className={`rounded-xl px-3 py-2 ${
           isUser && 'bg-[#262626] max-w-[75%]'
         }`}>
-        <Text className='text-white'>{messageItem.message}</Text>
+        <Markdown style={markdownStyles}>{message}</Markdown>
       </View>
     </View>
   )
