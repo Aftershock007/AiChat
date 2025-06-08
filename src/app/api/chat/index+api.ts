@@ -6,12 +6,30 @@ const openai = new OpenAI({
 })
 
 export async function POST(request: Request) {
-  const { message, previousResponseId } = await request.json()
+  const { message, previousResponseId, imageBase64 } = await request.json()
+  let messageContent = message
+  if (imageBase64) {
+    messageContent = [
+      {
+        role: 'user',
+        content: message
+      },
+      {
+        role: 'user',
+        content: [
+          {
+            type: 'input_image',
+            image_url: imageBase64
+          }
+        ]
+      }
+    ]
+  }
 
   try {
     const response = await openai.responses.create({
       model: 'gpt-4.1',
-      input: message,
+      input: messageContent,
       ...(previousResponseId && { previous_response_id: previousResponseId })
     })
     return Response.json({

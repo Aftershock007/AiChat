@@ -1,23 +1,43 @@
-import { View, TextInput, KeyboardAvoidingView, Platform } from 'react-native'
+import {
+  View,
+  TextInput,
+  KeyboardAvoidingView,
+  Platform,
+  ImageBackground
+} from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { MaterialCommunityIcons } from '@expo/vector-icons'
+import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
+import * as ImagePicker from 'expo-image-picker'
 
 interface ChatInputProps {
-  onSend: (message: string) => Promise<void>
+  onSend: (message: string, imageBase64: string | null) => Promise<void>
   isLoading?: boolean
 }
 
 export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
   const insets = useSafeAreaInsets()
   const [message, setMessage] = useState('')
+  const [imageBase64, setImageBase64] = useState<string | null>(null)
 
   const handleSend = async () => {
     setMessage('')
+    setImageBase64(null)
     try {
-      await onSend(message)
+      await onSend(message, imageBase64)
     } catch (error) {
       console.log(error)
+    }
+  }
+
+  const pickImage = async () => {
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      base64: true,
+      quality: 1
+    })
+    if (!result.canceled && result.assets[0].base64) {
+      setImageBase64(`data:image/jpeg;base64,${result.assets[0].base64}`)
     }
   }
 
@@ -28,6 +48,20 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
       <View
         className='bg-[#262626] rounded-3xl'
         style={{ paddingBottom: insets.bottom }}>
+        {imageBase64 && (
+          <ImageBackground
+            source={{ uri: imageBase64 }}
+            className='w-20 h-20 mx-3 mt-3'
+            imageClassName='rounded-2xl'>
+            <AntDesign
+              name='closecircle'
+              size={20}
+              color='white'
+              className='absolute right-1 top-1'
+              onPress={() => setImageBase64(null)}
+            />
+          </ImageBackground>
+        )}
         <TextInput
           value={message}
           onChangeText={setMessage}
@@ -37,8 +71,13 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
           className='pt-6 pb-2 px-4 text-white'
         />
         <View className='flex-row items-center justify-between px-4'>
-          <MaterialCommunityIcons name='plus' size={24} color='white' />
-          {!!message ? (
+          <MaterialCommunityIcons
+            onPress={pickImage}
+            name='plus'
+            size={24}
+            color='white'
+          />
+          {!!message || imageBase64 ? (
             <View className='bg-white rounded-full p-2'>
               <MaterialCommunityIcons
                 name='arrow-up'

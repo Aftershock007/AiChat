@@ -7,19 +7,20 @@ export default function HomeScreen() {
   const createNewChat = useChatStore((state) => state.createNewChat)
   const addNewMessage = useChatStore((state) => state.addNewMessage)
 
-  const handleSend = async (message: string) => {
+  const handleSend = async (message: string, imageBase64: string | null) => {
     const chatId = createNewChat(message.slice(0, 50))
     addNewMessage(chatId, {
       id: Date.now().toString(),
       role: 'user',
-      message
+      message,
+      ...(imageBase64 && { image: imageBase64 })
     })
     router.push(`/chat/${chatId}`)
     try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({ message, imageBase64 })
       })
       const data = await response.json()
       if (!response.ok) {
