@@ -3,14 +3,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 
-export default function ChatInput({ onSend, isLoading }) {
+export default function ChatInput({
+  onSend,
+  isLoading
+}: {
+  onSend: any
+  isLoading: boolean
+}) {
   const insets = useSafeAreaInsets()
-
   const [message, setMessage] = useState('')
 
-  async function handleSend() {
-    console.log('HI')
-
+  const handleSend = async () => {
     setMessage('')
     try {
       await onSend(message)
