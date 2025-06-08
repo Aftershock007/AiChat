@@ -12,6 +12,12 @@ export default function ChatScreen() {
     state.chatHistory.find((c) => c.id === id)
   )
   const addNewMessage = useChatStore((state) => state.addNewMessage)
+  const setIsWaitingForResponse = useChatStore(
+    (state) => state.setIsWaitingForResponse
+  )
+  const isWaitingForResponse = useChatStore(
+    (state) => state.isWaitingForResponse
+  )
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -22,6 +28,7 @@ export default function ChatScreen() {
 
   const handleSend = async (message: string, imageBase64: string | null) => {
     if (!chat) return
+    setIsWaitingForResponse(true)
     addNewMessage(chat.id, {
       id: Date.now().toString(),
       role: 'user' as const,
@@ -49,6 +56,8 @@ export default function ChatScreen() {
       addNewMessage(chat.id, aiResponseMessage)
     } catch (error) {
       console.error('Chat error:', error)
+    } finally {
+      setIsWaitingForResponse(false)
     }
   }
 
@@ -66,8 +75,15 @@ export default function ChatScreen() {
         ref={flatListRef}
         data={chat.messages}
         renderItem={({ item }) => <MessageListItem messageItem={item} />}
+        ListFooterComponent={() =>
+          isWaitingForResponse && (
+            <Text className='text-gray-400 px-6 mb-4 animate-pulse'>
+              Waiting for response...
+            </Text>
+          )
+        }
       />
-      <ChatInput onSend={handleSend} isLoading={false} />
+      <ChatInput onSend={handleSend} />
     </View>
   )
 }

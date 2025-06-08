@@ -6,8 +6,12 @@ import { View, Text, FlatList } from 'react-native'
 export default function HomeScreen() {
   const createNewChat = useChatStore((state) => state.createNewChat)
   const addNewMessage = useChatStore((state) => state.addNewMessage)
+  const setIsWaitingForResponse = useChatStore(
+    (state) => state.setIsWaitingForResponse
+  )
 
   const handleSend = async (message: string, imageBase64: string | null) => {
+    setIsWaitingForResponse(true)
     const chatId = createNewChat(message.slice(0, 50))
     addNewMessage(chatId, {
       id: Date.now().toString(),
@@ -35,6 +39,8 @@ export default function HomeScreen() {
       addNewMessage(chatId, aiResponseMessage)
     } catch (error) {
       console.error('Chat error:', error)
+    } finally {
+      setIsWaitingForResponse(false)
     }
   }
 

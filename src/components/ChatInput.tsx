@@ -9,16 +9,19 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
+import { useChatStore } from '@/store/chatStore'
 
 interface ChatInputProps {
   onSend: (message: string, imageBase64: string | null) => Promise<void>
-  isLoading?: boolean
 }
 
-export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
+export default function ChatInput({ onSend }: ChatInputProps) {
   const insets = useSafeAreaInsets()
   const [message, setMessage] = useState('')
   const [imageBase64, setImageBase64] = useState<string | null>(null)
+  const isWaitingForResponse = useChatStore(
+    (state) => state.isWaitingForResponse
+  )
 
   const handleSend = async () => {
     setMessage('')
@@ -85,7 +88,7 @@ export default function ChatInput({ onSend, isLoading }: ChatInputProps) {
                 color='black'
                 className='ml-auto'
                 onPress={handleSend}
-                disabled={isLoading}
+                disabled={isWaitingForResponse}
               />
             </View>
           ) : (
