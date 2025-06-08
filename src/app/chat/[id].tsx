@@ -16,9 +16,31 @@ export default function ChatScreen() {
     if (!chat) return
     addNewMessage(chat.id, {
       id: Date.now().toString(),
-      role: 'user',
+      role: 'user' as const,
       message
     })
+    const previousResponseId =
+      chat.messages[chat.messages.length - 1]?.responseId
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message, previousResponseId })
+      })
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
+      const aiResponseMessage = {
+        id: Date.now().toString(),
+        message: data.responseMessage,
+        responseId: data.responseId,
+        role: 'assistant' as const
+      }
+      addNewMessage(chatId, aiResponseMessage)
+    } catch (error) {
+      console.error('Chat error:', error)
+    }
   }
 
   if (!chat) {

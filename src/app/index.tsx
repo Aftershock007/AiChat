@@ -16,11 +16,24 @@ export default function HomeScreen() {
     })
     router.push(`/chat/${chatId}`)
     try {
-      const response = await fetch('/api/chat')
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message })
+      })
       const data = await response.json()
-      console.log(data)
+      if (!response.ok) {
+        throw new Error(data.error)
+      }
+      const aiResponseMessage = {
+        id: Date.now().toString(),
+        message: data.responseMessage,
+        responseId: data.responseId,
+        role: 'assistant' as const
+      }
+      addNewMessage(chatId, aiResponseMessage)
     } catch (error) {
-      console.error(error)
+      console.error('Chat error:', error)
     }
   }
 
