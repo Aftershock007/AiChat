@@ -21,7 +21,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
+      ]
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -32,10 +36,18 @@
       [
         "expo-router",
         {
-          "origin": "http://localhost:8081"
+          "origin": "https://aichat.expo.app"
         }
       ],
       "expo-audio"
-    ]
+    ],
+    "extra": {
+      "router": {
+        "origin": "https://aichat.expo.app"
+      },
+      "eas": {
+        "projectId": "777f639a-a347-49d2-9467-0ad32db7baf0"
+      }
+    }
   }
 }
