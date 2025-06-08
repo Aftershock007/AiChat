@@ -4,6 +4,7 @@ import ChatInput from '@/components/ChatInput'
 import MessageListItem from '@/components/MessageListItem'
 import { useChatStore } from '@/store/chatStore'
 import { useEffect, useRef } from 'react'
+import { createAIImage, getTextResponse } from '@/services/chatService'
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams()
@@ -26,7 +27,11 @@ export default function ChatScreen() {
     return () => clearTimeout(timeout)
   }, [chat?.messages])
 
-  const handleSend = async (message: string, imageBase64: string | null) => {
+  const handleSend = async (
+    message: string,
+    imageBase64: string | null,
+    isImageGeneration: boolean
+  ) => {
     if (!chat) return
     setIsWaitingForResponse(true)
     addNewMessage(chat.id, {
@@ -38,19 +43,17 @@ export default function ChatScreen() {
     const previousResponseId =
       chat.messages[chat.messages.length - 1]?.responseId
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, previousResponseId, imageBase64 })
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        throw new Error(data.error)
+      let data
+      if (isImageGeneration) {
+        data = await createAIImage(message)
+      } else {
+        data = await getTextResponse(message, imageBase64, previousResponseId)
       }
       const aiResponseMessage = {
         id: Date.now().toString(),
         message: data.responseMessage,
         responseId: data.responseId,
+        image: data.image,
         role: 'assistant' as const
       }
       addNewMessage(chat.id, aiResponseMessage)

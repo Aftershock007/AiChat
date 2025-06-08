@@ -1,4 +1,5 @@
 import ChatInput from '@/components/ChatInput'
+import { createAIImage, getTextResponse } from '@/services/chatService'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
 import { View, Text, FlatList } from 'react-native'
@@ -10,7 +11,11 @@ export default function HomeScreen() {
     (state) => state.setIsWaitingForResponse
   )
 
-  const handleSend = async (message: string, imageBase64: string | null) => {
+  const handleSend = async (
+    message: string,
+    imageBase64: string | null,
+    isImageGeneration: boolean
+  ) => {
     setIsWaitingForResponse(true)
     const chatId = createNewChat(message.slice(0, 50))
     addNewMessage(chatId, {
@@ -21,19 +26,17 @@ export default function HomeScreen() {
     })
     router.push(`/chat/${chatId}`)
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, imageBase64 })
-      })
-      const data = await response.json()
-      if (!response.ok) {
-        throw new Error(data.error)
+      let data
+      if (isImageGeneration) {
+        data = await createAIImage(message)
+      } else {
+        data = await getTextResponse(message, imageBase64)
       }
       const aiResponseMessage = {
         id: Date.now().toString(),
         message: data.responseMessage,
         responseId: data.responseId,
+        image: data.image,
         role: 'assistant' as const
       }
       addNewMessage(chatId, aiResponseMessage)
