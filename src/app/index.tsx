@@ -9,13 +9,19 @@ export default function HomeScreen() {
 
   const handleSend = async (message: string) => {
     const chatId = createNewChat(message.slice(0, 50))
-    if (!chatId) return
     addNewMessage(chatId, {
       id: Date.now().toString(),
       role: 'user',
       message
     })
     router.push(`/chat/${chatId}`)
+    try {
+      const response = await fetch('/api/chat')
+      const data = await response.json()
+      console.log(data)
+    } catch (error) {
+      console.error(error)
+    }
   }
 
   return (

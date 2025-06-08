@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 
 interface ChatStore {
   chatHistory: Chat[]
-  createNewChat: (title: string) => void
+  createNewChat: (title: string) => string
   addNewMessage: (chatId: string, message: Message) => void
 }
 
