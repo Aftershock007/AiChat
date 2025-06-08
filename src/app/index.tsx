@@ -1,7 +1,7 @@
 import ChatInput from '@/components/ChatInput'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
-import { View, Text } from 'react-native'
+import { View, Text, FlatList } from 'react-native'
 
 export default function HomeScreen() {
   const createNewChat = useChatStore((state) => state.createNewChat)
