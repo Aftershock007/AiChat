@@ -10,11 +10,7 @@ import ChatInput from '@/components/ChatInput'
 import MessageListItem from '@/components/MessageListItem'
 import { useChatStore } from '@/store/chatStore'
 import { useEffect, useRef } from 'react'
-import {
-  createAIImage,
-  getSpeechResponse,
-  getTextResponse
-} from '@/services/chatService'
+import { createAIImage, getTextResponse } from '@/services/chatService'
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams()
@@ -40,8 +36,7 @@ export default function ChatScreen() {
   const handleSend = async (
     message: string,
     imageBase64: string | null,
-    isImageGeneration: boolean,
-    audioBase64: string | null
+    isImageGeneration: boolean
   ) => {
     if (!chat) return
     setIsWaitingForResponse(true)
@@ -56,15 +51,7 @@ export default function ChatScreen() {
     )?.responseId
     try {
       let data
-      if (audioBase64) {
-        data = await getSpeechResponse(audioBase64, previousResponseId)
-        const myMessage = {
-          id: Date.now().toString(),
-          role: 'user' as const,
-          message: data.transcribedMessage
-        }
-        addNewMessage(chat.id, myMessage)
-      } else if (isImageGeneration) {
+      if (isImageGeneration) {
         data = await createAIImage(message)
       } else {
         data = await getTextResponse(message, imageBase64, previousResponseId)

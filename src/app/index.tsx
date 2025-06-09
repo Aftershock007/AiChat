@@ -1,9 +1,5 @@
 import ChatInput from '@/components/ChatInput'
-import {
-  createAIImage,
-  getSpeechResponse,
-  getTextResponse
-} from '@/services/chatService'
+import { createAIImage, getTextResponse } from '@/services/chatService'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
 import { View, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
@@ -18,31 +14,20 @@ export default function HomeScreen() {
   const handleSend = async (
     message: string,
     imageBase64: string | null,
-    isImageGeneration: boolean,
-    audioBase64: string | null
+    isImageGeneration: boolean
   ) => {
     setIsWaitingForResponse(true)
     const chatId = createNewChat(message.slice(0, 50) || 'New Chat')
-    if (!audioBase64) {
-      addNewMessage(chatId, {
-        id: Date.now().toString(),
-        role: 'user',
-        message,
-        ...(imageBase64 && { image: imageBase64 })
-      })
-    }
+    addNewMessage(chatId, {
+      id: Date.now().toString(),
+      role: 'user',
+      message,
+      ...(imageBase64 && { image: imageBase64 })
+    })
     router.push(`/chat/${chatId}`)
     try {
       let data
-      if (audioBase64) {
-        data = await getSpeechResponse(audioBase64)
-        const myMessage = {
-          id: Date.now().toString(),
-          role: 'user' as const,
-          message: data.transcribedMessage
-        }
-        addNewMessage(chatId, myMessage)
-      } else if (isImageGeneration) {
+      if (isImageGeneration) {
         data = await createAIImage(message)
       } else {
         data = await getTextResponse(message, imageBase64)

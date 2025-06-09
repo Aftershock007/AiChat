@@ -16,13 +16,13 @@ import * as ImagePicker from 'expo-image-picker'
 import { useChatStore } from '@/store/chatStore'
 import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio'
 import * as FileSystem from 'expo-file-system'
+import { transcribeAudio } from '@/services/chatService'
 
 interface ChatInputProps {
   onSend: (
     message: string,
     imageBase64: string | null,
-    isImageGeneration: boolean,
-    recordedAudioPath: string | null
+    isImageGeneration: boolean
   ) => Promise<void>
 }
 
@@ -32,28 +32,17 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [isImageGeneration, setIsImageGeneration] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
-  const [recordedAudioPath, setRecordedAudioPath] = useState<string | null>(
-    null
-  )
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
   )
 
-  const handleConvertAudio = async () => {
-    if (!recordedAudioPath) return null
-    return FileSystem.readAsStringAsync(recordedAudioPath, {
-      encoding: FileSystem.EncodingType.Base64
-    })
-  }
-
   const handleSend = async () => {
+    const text = message
     setMessage('')
     setImageBase64(null)
-    setRecordedAudioPath(null)
     try {
-      const audioBase64 = await handleConvertAudio()
-      await onSend(message, imageBase64, isImageGeneration, audioBase64)
+      await onSend(text, imageBase64, isImageGeneration)
     } catch (error) {
       console.error(error)
     }
@@ -92,7 +81,15 @@ export default function ChatInput({ onSend }: ChatInputProps) {
     try {
       await audioRecorder.stop()
       if (audioRecorder.uri) {
-        setRecordedAudioPath(audioRecorder.uri)
+        try {
+          const base64 = await FileSystem.readAsStringAsync(audioRecorder.uri, {
+            encoding: FileSystem.EncodingType.Base64
+          })
+          const text = await transcribeAudio(base64)
+          setMessage((prev) => (prev ? `${prev} ${text}` : text))
+        } catch (error) {
+          Alert.alert('Transcription error', 'Please try again')
+        }
       }
       setIsRecording(false)
     } catch (error) {
@@ -143,7 +140,14 @@ export default function ChatInput({ onSend }: ChatInputProps) {
               size={24}
               onPress={() => setIsImageGeneration(!isImageGeneration)}
             />
-            {!!message || imageBase64 || recordedAudioPath ? (
+            <Pressable onPress={isRecording ? stopRecording : startRecording}>
+              <MaterialCommunityIcons
+                name='microphone'
+                size={24}
+                color={isRecording ? 'white' : 'gray'}
+              />
+            </Pressable>
+            {!!message || imageBase64 ? (
               <View className='bg-white rounded-full p-2'>
                 <MaterialCommunityIcons
                   name='arrow-up'
@@ -154,15 +158,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
                   disabled={isWaitingForResponse}
                 />
               </View>
-            ) : (
-              <Pressable onPress={isRecording ? stopRecording : startRecording}>
-                <MaterialCommunityIcons
-                  name='microphone'
-                  size={24}
-                  color={isRecording ? 'white' : 'gray'}
-                />
-              </Pressable>
-            )}
+            ) : null}
           </View>
         </View>
       </TouchableWithoutFeedback>

@@ -1,4 +1,4 @@
-import { Image, Text, View } from 'react-native'
+import { Image, View } from 'react-native'
 import Markdown from 'react-native-markdown-display'
 import { markdownStyles } from '@/utils/markdown'
 import { Message } from '@/types/types'

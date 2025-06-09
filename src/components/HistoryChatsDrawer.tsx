@@ -1,6 +1,5 @@
 import { useChatStore } from '@/store/chatStore'
 import {
-  DrawerContent,
   DrawerContentComponentProps,
   DrawerContentScrollView,
   DrawerItem,

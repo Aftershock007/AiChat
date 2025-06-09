@@ -37,3 +37,14 @@ export const getSpeechResponse = async (
   if (!res.ok) throw new Error(data.error)
   return data
 }
+
+export const transcribeAudio = async (audioBase64: string) => {
+  const res = await fetch('/api/chat/transcribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ audioBase64 })
+  })
+  const data = await res.json()
+  if (!res.ok) throw new Error(data.error)
+  return data.transcribedMessage as string
+}
