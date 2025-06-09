@@ -69,15 +69,17 @@ export default function HomeScreen() {
   }
 
   return (
-    <View className='flex-1 justify-center'>
-      <View className='flex-1'>
-        <Text className='text-3xl'>Hello World</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View className='flex-1 justify-center'>
+        <View className='flex-1'>
+          <Text className='text-3xl'>Hello World</Text>
+        </View>
+        <ChatInput
+          onSend={handleSend}
+          onStop={handleStop}
+          isWaitingForResponse={isWaitingForResponse}
+        />
       </View>
-      <ChatInput
-        onSend={handleSend}
-        onStop={handleStop}
-        isWaitingForResponse={isWaitingForResponse}
-      />
-    </View>
+    </TouchableWithoutFeedback>
   )
 }
