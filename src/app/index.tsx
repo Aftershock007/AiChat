@@ -2,7 +2,6 @@ import ChatInput from '@/components/ChatInput'
 import { createAIImage, getTextResponse } from '@/services/chatService'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
-import { useRef } from 'react'
 import { View, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
 
 export default function HomeScreen() {
@@ -11,10 +10,11 @@ export default function HomeScreen() {
   const setIsWaitingForResponse = useChatStore(
     (state) => state.setIsWaitingForResponse
   )
+  const setAbortController = useChatStore((state) => state.setAbortController)
+  const abortController = useChatStore((state) => state.abortController)
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
   )
-  const abortControllerRef = useRef<AbortController | null>(null)
 
   const handleSend = async (
     message: string,
@@ -22,7 +22,7 @@ export default function HomeScreen() {
     isImageGeneration: boolean
   ) => {
     const controller = new AbortController()
-    abortControllerRef.current = controller
+    setAbortController(controller)
     setIsWaitingForResponse(true)
     const chatId = createNewChat(message.slice(0, 50) || 'New Chat')
     addNewMessage(chatId, {
@@ -55,12 +55,14 @@ export default function HomeScreen() {
     } catch (error) {
       console.error('Chat error:', error)
     } finally {
+      setAbortController(null)
       setIsWaitingForResponse(false)
     }
   }
 
   const handleStop = () => {
-    abortControllerRef.current?.abort()
+    abortController?.abort()
+    setAbortController(null)
     setIsWaitingForResponse(false)
   }
 

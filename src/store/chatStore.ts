@@ -6,7 +6,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 interface ChatStore {
   chatHistory: Chat[]
   isWaitingForResponse: boolean
+  abortController: AbortController | null
   setIsWaitingForResponse: (isWaitingForResponse: boolean) => void
+  setAbortController: (controller: AbortController | null) => void
   createNewChat: (title: string) => string
   addNewMessage: (chatId: string, message: Message) => void
 }
@@ -16,8 +18,12 @@ export const useChatStore = create<ChatStore>()(
     (set) => ({
       chatHistory: [],
       isWaitingForResponse: false,
+      abortController: null,
       setIsWaitingForResponse: (isWaitingForResponse: boolean) => {
         set({ isWaitingForResponse })
+      },
+      setAbortController: (controller: AbortController | null) => {
+        set({ abortController: controller })
       },
       createNewChat: (title: string) => {
         const newChat: Chat = { id: Date.now().toString(), title, messages: [] }
@@ -36,7 +42,8 @@ export const useChatStore = create<ChatStore>()(
     }),
     {
       name: 'chat-storage',
-      storage: createJSONStorage(() => AsyncStorage)
+      storage: createJSONStorage(() => AsyncStorage),
+      partialize: (state) => ({ chatHistory: state.chatHistory })
     }
   )
 )

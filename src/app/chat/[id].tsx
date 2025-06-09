@@ -22,10 +22,11 @@ export default function ChatScreen() {
   const setIsWaitingForResponse = useChatStore(
     (state) => state.setIsWaitingForResponse
   )
+  const setAbortController = useChatStore((state) => state.setAbortController)
+  const abortController = useChatStore((state) => state.abortController)
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
   )
-  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -41,7 +42,7 @@ export default function ChatScreen() {
   ) => {
     if (!chat) return
     const controller = new AbortController()
-    abortControllerRef.current = controller
+    setAbortController(controller)
     setIsWaitingForResponse(true)
     addNewMessage(chat.id, {
       id: Date.now().toString(),
@@ -75,12 +76,14 @@ export default function ChatScreen() {
     } catch (error) {
       console.error('Chat error:', error)
     } finally {
+      setAbortController(null)
       setIsWaitingForResponse(false)
     }
   }
 
   const handleStop = () => {
-    abortControllerRef.current?.abort()
+    abortController?.abort()
+    setAbortController(null)
     setIsWaitingForResponse(false)
   }
 
