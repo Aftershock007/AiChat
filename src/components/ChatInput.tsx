@@ -14,7 +14,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
-// import { useChatStore } from '@/store/chatStore'
 import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio'
 import * as FileSystem from 'expo-file-system'
 import { transcribeAudio } from '@/services/chatService'
@@ -41,9 +40,6 @@ export default function ChatInput({
   const [isRecording, setIsRecording] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
-  // const isWaitingForResponse = useChatStore(
-  //   (state) => state.isWaitingForResponse
-  // )
 
   const handleSend = async () => {
     const text = message
@@ -167,16 +163,11 @@ export default function ChatInput({
               )}
             </Pressable>
             {isWaitingForResponse ? (
-              <View className='bg-white rounded-full p-2'>
-                <MaterialCommunityIcons
-                  name='stop-circle'
-                  size={24}
-                  color='red'
-                  className='ml-auto'
-                  onPress={handleSend}
-                  disabled={isWaitingForResponse}
-                />
-              </View>
+              <Pressable
+                onPress={onStop}
+                className='ml-auto bg-white rounded-full p-2'>
+                <MaterialCommunityIcons name='stop' size={24} color='red' />
+              </Pressable>
             ) : (
               (!!message || imageBase64) && (
                 <View className='bg-white rounded-full p-2'>
