@@ -1,23 +1,26 @@
 export const getTextResponse = async (
   message: string,
   imageBase64: string | null,
-  previousResponseId?: string
+  previousResponseId?: string,
+  signal?: AbortSignal
 ) => {
   const res = await fetch('/api/chat', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ message, imageBase64, previousResponseId })
+    body: JSON.stringify({ message, imageBase64, previousResponseId }),
+    signal
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error)
   return data
 }
 
-export async function createAIImage(prompt: string) {
+export async function createAIImage(prompt: string, signal?: AbortSignal) {
   const res = await fetch('/api/chat/createImage', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt })
+    body: JSON.stringify({ prompt }),
+    signal
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error)
@@ -26,23 +29,29 @@ export async function createAIImage(prompt: string) {
 
 export const getSpeechResponse = async (
   audioBase64: string,
-  previousResponseId?: string
+  previousResponseId?: string,
+  signal?: AbortSignal
 ) => {
   const res = await fetch('/api/chat/speech', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audioBase64, previousResponseId })
+    body: JSON.stringify({ audioBase64, previousResponseId }),
+    signal
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error)
   return data
 }
 
-export const transcribeAudio = async (audioBase64: string) => {
+export const transcribeAudio = async (
+  audioBase64: string,
+  signal?: AbortSignal
+) => {
   const res = await fetch('/api/chat/transcribe', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ audioBase64 })
+    body: JSON.stringify({ audioBase64 }),
+    signal
   })
   const data = await res.json()
   if (!res.ok) throw new Error(data.error)

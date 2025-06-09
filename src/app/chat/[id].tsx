@@ -25,6 +25,7 @@ export default function ChatScreen() {
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
   )
+  const abortControllerRef = useRef<AbortController | null>(null)
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -39,6 +40,8 @@ export default function ChatScreen() {
     isImageGeneration: boolean
   ) => {
     if (!chat) return
+    const controller = new AbortController()
+    abortControllerRef.current = controller
     setIsWaitingForResponse(true)
     addNewMessage(chat.id, {
       id: Date.now().toString(),
@@ -52,9 +55,14 @@ export default function ChatScreen() {
     try {
       let data
       if (isImageGeneration) {
-        data = await createAIImage(message)
+        data = await createAIImage(message, controller.signal)
       } else {
-        data = await getTextResponse(message, imageBase64, previousResponseId)
+        data = await getTextResponse(
+          message,
+          imageBase64,
+          previousResponseId,
+          controller.signal
+        )
       }
       const aiResponseMessage = {
         id: Date.now().toString(),
@@ -69,6 +77,11 @@ export default function ChatScreen() {
     } finally {
       setIsWaitingForResponse(false)
     }
+  }
+
+  const handleStop = () => {
+    abortControllerRef.current?.abort()
+    setIsWaitingForResponse(false)
   }
 
   if (!chat) {
@@ -94,7 +107,11 @@ export default function ChatScreen() {
             )
           }
         />
-        <ChatInput onSend={handleSend} />
+        <ChatInput
+          onSend={handleSend}
+          onStop={handleStop}
+          isWaitingForResponse={isWaitingForResponse}
+        />
       </View>
     </TouchableWithoutFeedback>
   )

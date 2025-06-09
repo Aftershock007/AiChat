@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
 import { useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
-import { useChatStore } from '@/store/chatStore'
+// import { useChatStore } from '@/store/chatStore'
 import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio'
 import * as FileSystem from 'expo-file-system'
 import { transcribeAudio } from '@/services/chatService'
@@ -25,9 +25,15 @@ interface ChatInputProps {
     imageBase64: string | null,
     isImageGeneration: boolean
   ) => Promise<void>
+  isWaitingForResponse: boolean
+  onStop: () => void
 }
 
-export default function ChatInput({ onSend }: ChatInputProps) {
+export default function ChatInput({
+  onSend,
+  isWaitingForResponse,
+  onStop
+}: ChatInputProps) {
   const insets = useSafeAreaInsets()
   const [message, setMessage] = useState('')
   const [imageBase64, setImageBase64] = useState<string | null>(null)
@@ -35,9 +41,9 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   const [isRecording, setIsRecording] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
-  const isWaitingForResponse = useChatStore(
-    (state) => state.isWaitingForResponse
-  )
+  // const isWaitingForResponse = useChatStore(
+  //   (state) => state.isWaitingForResponse
+  // )
 
   const handleSend = async () => {
     const text = message
@@ -160,18 +166,30 @@ export default function ChatInput({ onSend }: ChatInputProps) {
                 />
               )}
             </Pressable>
-            {!!message || imageBase64 ? (
+            {isWaitingForResponse ? (
               <View className='bg-white rounded-full p-2'>
                 <MaterialCommunityIcons
-                  name='arrow-up'
+                  name='stop-circle'
                   size={24}
-                  color='black'
+                  color='red'
                   className='ml-auto'
                   onPress={handleSend}
                   disabled={isWaitingForResponse}
                 />
               </View>
-            ) : null}
+            ) : (
+              (!!message || imageBase64) && (
+                <View className='bg-white rounded-full p-2'>
+                  <MaterialCommunityIcons
+                    name='arrow-up'
+                    size={24}
+                    color='black'
+                    className='ml-auto'
+                    onPress={handleSend}
+                  />
+                </View>
+              )
+            )}
           </View>
         </View>
       </TouchableWithoutFeedback>
