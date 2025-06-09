@@ -1,4 +1,10 @@
-import { View, Text, FlatList } from 'react-native'
+import {
+  View,
+  Text,
+  FlatList,
+  TouchableWithoutFeedback,
+  Keyboard
+} from 'react-native'
 import { useLocalSearchParams } from 'expo-router'
 import ChatInput from '@/components/ChatInput'
 import MessageListItem from '@/components/MessageListItem'
@@ -87,20 +93,22 @@ export default function ChatScreen() {
   }
 
   return (
-    <View className='flex-1'>
-      <FlatList
-        ref={flatListRef}
-        data={chat.messages}
-        renderItem={({ item }) => <MessageListItem messageItem={item} />}
-        ListFooterComponent={() =>
-          isWaitingForResponse && (
-            <Text className='text-gray-400 px-6 mb-4 animate-pulse'>
-              Waiting for response...
-            </Text>
-          )
-        }
-      />
-      <ChatInput onSend={handleSend} />
-    </View>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+      <View className='flex-1'>
+        <FlatList
+          ref={flatListRef}
+          data={chat.messages}
+          renderItem={({ item }) => <MessageListItem messageItem={item} />}
+          ListFooterComponent={() =>
+            isWaitingForResponse && (
+              <Text className='text-gray-400 px-6 mb-4 animate-pulse'>
+                Waiting for response...
+              </Text>
+            )
+          }
+        />
+        <ChatInput onSend={handleSend} />
+      </View>
+    </TouchableWithoutFeedback>
   )
 }
