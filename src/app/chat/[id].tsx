@@ -103,6 +103,7 @@ export default function ChatScreen() {
         <FlatList
           ref={flatListRef}
           data={chat.messages}
+          className='flex-1'
           renderItem={({ item }) => <MessageListItem messageItem={item} />}
           ListFooterComponent={() =>
             isWaitingForResponse && (

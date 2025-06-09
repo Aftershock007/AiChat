@@ -14,7 +14,7 @@ import {
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import * as ImagePicker from 'expo-image-picker'
 import { useAudioRecorder, AudioModule, RecordingPresets } from 'expo-audio'
 import * as FileSystem from 'expo-file-system'
@@ -41,12 +41,14 @@ export default function ChatInput({
   const [isImageGeneration, setIsImageGeneration] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
   const [isTranscribing, setIsTranscribing] = useState(false)
+  const ignoreTextChange = useRef(false)
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
 
   const handleSend = async () => {
     const text = message
     setMessage('')
     setImageBase64(null)
+    ignoreTextChange.current = true
     try {
       await onSend(text, imageBase64, isImageGeneration)
     } catch (error) {
@@ -58,11 +60,11 @@ export default function ChatInput({
     e: NativeSyntheticEvent<TextInputKeyPressEventData>
   ) => {
     if (e.nativeEvent.key === 'Enter') {
-      const meta =
-        (e.nativeEvent as any).metaKey || (e.nativeEvent as any).ctrlKey
-      if (meta) {
+      const shift = (e.nativeEvent as any).shiftKey
+      if (shift) {
         setMessage((prev) => prev + '\n')
       } else if (message || imageBase64) {
+        ;(e.nativeEvent as any).preventDefault?.()
         ;(e as any).preventDefault?.()
         handleSend()
       }
@@ -147,7 +149,13 @@ export default function ChatInput({
           )}
           <TextInput
             value={message}
-            onChangeText={setMessage}
+            onChangeText={(text) => {
+              if (ignoreTextChange.current) {
+                ignoreTextChange.current = false
+                return
+              }
+              setMessage(text)
+            }}
             placeholder='Ask anything...'
             placeholderTextColor='gray'
             multiline
