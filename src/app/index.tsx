@@ -53,7 +53,9 @@ export default function HomeScreen() {
       }
       addNewMessage(chatId, aiResponseMessage)
     } catch (error) {
-      console.error('Chat error:', error)
+      if ((error as Error)?.name !== 'AbortError') {
+        console.error('Chat error:', error)
+      }
     } finally {
       setAbortController(null)
       setIsWaitingForResponse(false)
