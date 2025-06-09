@@ -53,7 +53,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
       const audioBase64 = await handleConvertAudio()
       await onSend(message, imageBase64, isImageGeneration, audioBase64)
     } catch (error) {
-      console.log(error)
+      console.error(error)
     }
   }
 
@@ -127,7 +127,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
           multiline
           className='pt-6 pb-2 px-4 text-white'
         />
-        <View className='flex-row justify-between px-4 gap-2'>
+        <View className='flex-row items-center px-4 gap-3'>
           <MaterialCommunityIcons
             onPress={pickImage}
             name='plus'

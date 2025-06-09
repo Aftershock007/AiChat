@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     const base64Image = img?.data?.[0]?.b64_json
     return Response.json({ image: `data:image/png;base64,${base64Image}` })
   } catch (error) {
-    console.log(error)
+    console.error(error)
     return Response.json(
       { error: 'Failed to generate response' },
       { status: 500 }
