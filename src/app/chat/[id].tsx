@@ -98,27 +98,26 @@ export default function ChatScreen() {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-      <View className='flex-1'>
-        <FlatList
-          ref={flatListRef}
-          data={chat.messages}
-          className='flex-1'
-          renderItem={({ item }) => <MessageListItem messageItem={item} />}
-          ListFooterComponent={() =>
-            isWaitingForResponse && (
-              <Text className='text-gray-400 px-6 mb-4 animate-pulse'>
-                Waiting for response...
-              </Text>
-            )
-          }
-        />
-        <ChatInput
-          onSend={handleSend}
-          onStop={handleStop}
-          isWaitingForResponse={isWaitingForResponse}
-        />
-      </View>
-    </TouchableWithoutFeedback>
+    <View className='flex-1'>
+      <FlatList
+        ref={flatListRef}
+        data={chat.messages}
+        className='flex-1'
+        onScrollBeginDrag={Keyboard.dismiss}
+        renderItem={({ item }) => <MessageListItem messageItem={item} />}
+        ListFooterComponent={() =>
+          isWaitingForResponse && (
+            <Text className='text-gray-400 px-6 mb-4 animate-pulse'>
+              Waiting for response...
+            </Text>
+          )
+        }
+      />
+      <ChatInput
+        onSend={handleSend}
+        onStop={handleStop}
+        isWaitingForResponse={isWaitingForResponse}
+      />
+    </View>
   )
 }
