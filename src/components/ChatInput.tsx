@@ -170,12 +170,11 @@ export default function ChatInput({
               </Pressable>
             ) : (
               (!!message || imageBase64) && (
-                <View className='bg-white rounded-full p-2'>
+                <View className='bg-white rounded-full p-1 ml-auto'>
                   <MaterialCommunityIcons
                     name='arrow-up'
                     size={24}
                     color='black'
-                    className='ml-auto'
                     onPress={handleSend}
                   />
                 </View>
