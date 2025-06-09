@@ -8,7 +8,9 @@ import {
   Pressable,
   TouchableWithoutFeedback,
   Keyboard,
-  ActivityIndicator
+  ActivityIndicator,
+  NativeSyntheticEvent,
+  TextInputKeyPressEventData
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -49,6 +51,21 @@ export default function ChatInput({
       await onSend(text, imageBase64, isImageGeneration)
     } catch (error) {
       console.error(error)
+    }
+  }
+
+  const handleKeyPress = (
+    e: NativeSyntheticEvent<TextInputKeyPressEventData>
+  ) => {
+    if (e.nativeEvent.key === 'Enter') {
+      const meta =
+        (e.nativeEvent as any).metaKey || (e.nativeEvent as any).ctrlKey
+      if (meta) {
+        setMessage((prev) => prev + '\n')
+      } else if (message || imageBase64) {
+        ;(e as any).preventDefault?.()
+        handleSend()
+      }
     }
   }
 
@@ -134,6 +151,8 @@ export default function ChatInput({
             placeholder='Ask anything...'
             placeholderTextColor='gray'
             multiline
+            blurOnSubmit={false}
+            onKeyPress={handleKeyPress}
             className='pt-6 pb-2 px-4 text-white'
           />
           <View className='flex-row items-center px-4 gap-3'>
@@ -169,16 +188,17 @@ export default function ChatInput({
                 <MaterialCommunityIcons name='stop' size={24} color='red' />
               </Pressable>
             ) : (
-              (!!message || imageBase64) && (
-                <View className='bg-white rounded-full p-1 ml-auto'>
-                  <MaterialCommunityIcons
-                    name='arrow-up'
-                    size={24}
-                    color='black'
-                    onPress={handleSend}
-                  />
-                </View>
-              )
+              <Pressable
+                onPress={handleSend}
+                disabled={!message && !imageBase64}
+                className='ml-auto bg-white rounded-full p-1'
+                style={{ opacity: message || imageBase64 ? 1 : 0 }}>
+                <MaterialCommunityIcons
+                  name='arrow-up'
+                  size={24}
+                  color='black'
+                />
+              </Pressable>
             )}
           </View>
         </View>
