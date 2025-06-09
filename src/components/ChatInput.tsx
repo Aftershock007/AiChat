@@ -7,7 +7,8 @@ import {
   Alert,
   Pressable,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  ActivityIndicator
 } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { AntDesign, MaterialCommunityIcons } from '@expo/vector-icons'
@@ -32,6 +33,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const [isImageGeneration, setIsImageGeneration] = useState(false)
   const [isRecording, setIsRecording] = useState(false)
+  const [isTranscribing, setIsTranscribing] = useState(false)
   const audioRecorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY)
   const isWaitingForResponse = useChatStore(
     (state) => state.isWaitingForResponse
@@ -72,6 +74,7 @@ export default function ChatInput({ onSend }: ChatInputProps) {
       await audioRecorder.prepareToRecordAsync()
       audioRecorder.record()
       setIsRecording(true)
+      setIsTranscribing(false)
     } catch (error) {
       Alert.alert('Recording error', 'Please try again')
     }
@@ -80,8 +83,10 @@ export default function ChatInput({ onSend }: ChatInputProps) {
   const stopRecording = async () => {
     try {
       await audioRecorder.stop()
+      setIsTranscribing(false)
       if (audioRecorder.uri) {
         try {
+          setIsTranscribing(true)
           const base64 = await FileSystem.readAsStringAsync(audioRecorder.uri, {
             encoding: FileSystem.EncodingType.Base64
           })
@@ -89,6 +94,8 @@ export default function ChatInput({ onSend }: ChatInputProps) {
           setMessage((prev) => (prev ? `${prev} ${text}` : text))
         } catch (error) {
           Alert.alert('Transcription error', 'Please try again')
+        } finally {
+          setIsTranscribing(false)
         }
       }
       setIsRecording(false)
@@ -140,12 +147,18 @@ export default function ChatInput({ onSend }: ChatInputProps) {
               size={24}
               onPress={() => setIsImageGeneration(!isImageGeneration)}
             />
-            <Pressable onPress={isRecording ? stopRecording : startRecording}>
-              <MaterialCommunityIcons
-                name='microphone'
-                size={24}
-                color={isRecording ? 'white' : 'gray'}
-              />
+            <Pressable
+              disabled={isTranscribing}
+              onPress={isRecording ? stopRecording : startRecording}>
+              {isTranscribing ? (
+                <ActivityIndicator size={24} color='white' />
+              ) : (
+                <MaterialCommunityIcons
+                  name='microphone'
+                  size={24}
+                  color={isRecording ? 'white' : 'gray'}
+                />
+              )}
             </Pressable>
             {!!message || imageBase64 ? (
               <View className='bg-white rounded-full p-2'>
