@@ -35,12 +35,15 @@ export const streamTextResponse = async (
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
   let responseId: string | undefined
+  let buffer = ''
   while (true) {
     const { done, value } = await reader.read()
     if (done) break
-    const chunk = decoder.decode(value)
-    const lines = chunk.split('\n').filter((l) => l.trim() !== '')
-    for (const line of lines) {
+    buffer += decoder.decode(value)
+    const parts = buffer.split('\n')
+    buffer = parts.pop() ?? ''
+    for (const line of parts) {
+      if (line.trim() === '') continue
       try {
         const parsed = JSON.parse(line)
         if (parsed.messageChunk) onChunk(parsed.messageChunk)
@@ -48,6 +51,15 @@ export const streamTextResponse = async (
       } catch {
         onChunk(line)
       }
+    }
+  }
+  if (buffer.trim() !== '') {
+    try {
+      const parsed = JSON.parse(buffer)
+      if (parsed.messageChunk) onChunk(parsed.messageChunk)
+      if (parsed.responseId) responseId = parsed.responseId
+    } catch {
+      onChunk(buffer)
     }
   }
   return { responseId }
