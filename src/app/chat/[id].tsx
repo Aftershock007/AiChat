@@ -10,7 +10,7 @@ import ChatInput from '@/components/ChatInput'
 import MessageListItem from '@/components/MessageListItem'
 import { useChatStore } from '@/store/chatStore'
 import { useEffect, useRef } from 'react'
-import { createAIImage, getTextResponse } from '@/services/chatService'
+import { createAIImage, streamTextResponse } from '@/services/chatService'
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams()
@@ -19,6 +19,7 @@ export default function ChatScreen() {
     state.chatHistory.find((c) => c.id === id)
   )
   const addNewMessage = useChatStore((state) => state.addNewMessage)
+  const updateMessage = useChatStore((state) => state.updateMessage)
   const setIsWaitingForResponse = useChatStore(
     (state) => state.setIsWaitingForResponse
   )
@@ -50,29 +51,33 @@ export default function ChatScreen() {
       message,
       ...(imageBase64 && { image: imageBase64 })
     })
+    const assistantId = Date.now().toString()
+    addNewMessage(chat.id, {
+      id: assistantId,
+      role: 'assistant',
+      message: ''
+    })
     const previousResponseId = chat.messages.findLast(
       (message) => message.responseId
     )?.responseId
     try {
-      let data
       if (isImageGeneration) {
-        data = await createAIImage(message, controller.signal)
+        const data = await createAIImage(message, controller.signal)
+        updateMessage(chat.id, assistantId, { image: data.image })
       } else {
-        data = await getTextResponse(
+        let accumulated = ''
+        const { responseId } = await streamTextResponse(
           message,
           imageBase64,
           previousResponseId,
+          (chunk) => {
+            accumulated += chunk
+            updateMessage(chat.id, assistantId, { message: accumulated })
+          },
           controller.signal
         )
+        updateMessage(chat.id, assistantId, { responseId })
       }
-      const aiResponseMessage = {
-        id: Date.now().toString(),
-        message: data.responseMessage,
-        responseId: data.responseId,
-        image: data.image,
-        role: 'assistant' as const
-      }
-      addNewMessage(chat.id, aiResponseMessage)
     } catch (error) {
       if ((error as Error)?.name !== 'AbortError') {
         console.error('Chat error:', error)

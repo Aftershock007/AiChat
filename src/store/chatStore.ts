@@ -11,6 +11,11 @@ interface ChatStore {
   setAbortController: (controller: AbortController | null) => void
   createNewChat: (title: string) => string
   addNewMessage: (chatId: string, message: Message) => void
+  updateMessage: (
+    chatId: string,
+    messageId: string,
+    update: Partial<Message>
+  ) => void
 }
 
 export const useChatStore = create<ChatStore>()(
@@ -37,6 +42,23 @@ export const useChatStore = create<ChatStore>()(
               ? { ...chat, messages: [...chat.messages, message] }
               : chat
           )
+        }))
+      },
+      updateMessage: (
+        chatId: string,
+        messageId: string,
+        update: Partial<Message>
+      ) => {
+        set((state) => ({
+          chatHistory: state.chatHistory.map((chat) => {
+            if (chat.id !== chatId) return chat
+            return {
+              ...chat,
+              messages: chat.messages.map((m) =>
+                m.id === messageId ? { ...m, ...update } : m
+              )
+            }
+          })
         }))
       }
     }),

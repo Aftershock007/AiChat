@@ -1,5 +1,5 @@
 import ChatInput from '@/components/ChatInput'
-import { createAIImage, getTextResponse } from '@/services/chatService'
+import { createAIImage, streamTextResponse } from '@/services/chatService'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
 import { View, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
@@ -7,6 +7,7 @@ import { View, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
 export default function HomeScreen() {
   const createNewChat = useChatStore((state) => state.createNewChat)
   const addNewMessage = useChatStore((state) => state.addNewMessage)
+  const updateMessage = useChatStore((state) => state.updateMessage)
   const setIsWaitingForResponse = useChatStore(
     (state) => state.setIsWaitingForResponse
   )
@@ -31,27 +32,27 @@ export default function HomeScreen() {
       message,
       ...(imageBase64 && { image: imageBase64 })
     })
+    const assistantId = Date.now().toString()
+    addNewMessage(chatId, { id: assistantId, role: 'assistant', message: '' })
     router.push(`/chat/${chatId}`)
     try {
-      let data
       if (isImageGeneration) {
-        data = await createAIImage(message, controller.signal)
+        const data = await createAIImage(message, controller.signal)
+        updateMessage(chatId, assistantId, { image: data.image })
       } else {
-        data = await getTextResponse(
+        let accumulated = ''
+        const { responseId } = await streamTextResponse(
           message,
           imageBase64,
           undefined,
+          (chunk) => {
+            accumulated += chunk
+            updateMessage(chatId, assistantId, { message: accumulated })
+          },
           controller.signal
         )
+        updateMessage(chatId, assistantId, { responseId })
       }
-      const aiResponseMessage = {
-        id: Date.now().toString(),
-        message: data.responseMessage,
-        responseId: data.responseId,
-        image: data.image,
-        role: 'assistant' as const
-      }
-      addNewMessage(chatId, aiResponseMessage)
     } catch (error) {
       if ((error as Error)?.name !== 'AbortError') {
         console.error('Chat error:', error)

@@ -15,6 +15,44 @@ export const getTextResponse = async (
   return data
 }
 
+export const streamTextResponse = async (
+  message: string,
+  imageBase64: string | null,
+  previousResponseId: string | undefined,
+  onChunk: (chunk: string) => void,
+  signal?: AbortSignal
+) => {
+  const res = await fetch('/api/chat/stream', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message, imageBase64, previousResponseId }),
+    signal
+  })
+  if (!res.ok || !res.body) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.error || 'Failed to stream')
+  }
+  const reader = res.body.getReader()
+  const decoder = new TextDecoder()
+  let responseId: string | undefined
+  while (true) {
+    const { done, value } = await reader.read()
+    if (done) break
+    const chunk = decoder.decode(value)
+    const lines = chunk.split('\n').filter((l) => l.trim() !== '')
+    for (const line of lines) {
+      try {
+        const parsed = JSON.parse(line)
+        if (parsed.messageChunk) onChunk(parsed.messageChunk)
+        if (parsed.responseId) responseId = parsed.responseId
+      } catch {
+        onChunk(line)
+      }
+    }
+  }
+  return { responseId }
+}
+
 export async function createAIImage(prompt: string, signal?: AbortSignal) {
   const res = await fetch('/api/chat/createImage', {
     method: 'POST',
