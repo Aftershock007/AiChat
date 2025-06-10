@@ -2,6 +2,7 @@ import { Chat, Message } from '@/types/types'
 import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+import { generateId } from '@/utils/generateId'
 
 interface ChatStore {
   chatHistory: Chat[]
@@ -31,7 +32,7 @@ export const useChatStore = create<ChatStore>()(
         set({ abortController: controller })
       },
       createNewChat: (title: string) => {
-        const newChat: Chat = { id: Date.now().toString(), title, messages: [] }
+        const newChat: Chat = { id: generateId(), title, messages: [] }
         set((state) => ({ chatHistory: [newChat, ...state.chatHistory] }))
         return newChat.id
       },

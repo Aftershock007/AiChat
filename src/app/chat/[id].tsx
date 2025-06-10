@@ -11,6 +11,7 @@ import MessageListItem from '@/components/MessageListItem'
 import { useChatStore } from '@/store/chatStore'
 import { useEffect, useRef } from 'react'
 import { createAIImage, streamTextResponse } from '@/services/chatService'
+import { generateId } from '@/utils/generateId'
 
 export default function ChatScreen() {
   const { id } = useLocalSearchParams()
@@ -46,12 +47,12 @@ export default function ChatScreen() {
     setAbortController(controller)
     setIsWaitingForResponse(true)
     addNewMessage(chat.id, {
-      id: Date.now().toString(),
+      id: generateId(),
       role: 'user' as const,
       message,
       ...(imageBase64 && { image: imageBase64 })
     })
-    const assistantId = Date.now().toString()
+    const assistantId = generateId()
     addNewMessage(chat.id, {
       id: assistantId,
       role: 'assistant',

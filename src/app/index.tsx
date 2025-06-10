@@ -3,6 +3,7 @@ import { createAIImage, streamTextResponse } from '@/services/chatService'
 import { useChatStore } from '@/store/chatStore'
 import { router } from 'expo-router'
 import { View, Text, TouchableWithoutFeedback, Keyboard } from 'react-native'
+import { generateId } from '@/utils/generateId'
 
 export default function HomeScreen() {
   const createNewChat = useChatStore((state) => state.createNewChat)
@@ -27,12 +28,12 @@ export default function HomeScreen() {
     setIsWaitingForResponse(true)
     const chatId = createNewChat(message.slice(0, 50) || 'New Chat')
     addNewMessage(chatId, {
-      id: Date.now().toString(),
+      id: generateId(),
       role: 'user',
       message,
       ...(imageBase64 && { image: imageBase64 })
     })
-    const assistantId = Date.now().toString()
+    const assistantId = generateId()
     addNewMessage(chatId, { id: assistantId, role: 'assistant', message: '' })
     router.push(`/chat/${chatId}`)
     try {
