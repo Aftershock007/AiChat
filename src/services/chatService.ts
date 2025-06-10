@@ -28,9 +28,19 @@ export const streamTextResponse = async (
     body: JSON.stringify({ message, imageBase64, previousResponseId }),
     signal
   })
-  if (!res.ok || !res.body) {
+  if (!res.ok) {
     const data = await res.json().catch(() => ({}))
     throw new Error(data.error || 'Failed to stream')
+  }
+  if (!res.body) {
+    const data = await getTextResponse(
+      message,
+      imageBase64,
+      previousResponseId,
+      signal
+    )
+    onChunk(data.responseMessage)
+    return { responseId: data.responseId }
   }
   const reader = res.body.getReader()
   const decoder = new TextDecoder()
